@@ -75,7 +75,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          //logo placeholder
+          Image.asset('assets/excelerateLogo0.png', height: 240),
           const SizedBox(height: 40),
           Text(
             page.title,

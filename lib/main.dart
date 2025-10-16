@@ -1,3 +1,4 @@
+import 'package:excelerate/onboardingScreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,11 +11,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My First Flutter App',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Welcome')),
-        body: const Center(child: Text('Hello, Flutter!')),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
       ),
+      home: const OnboardingScreen(),
     );
   }
 }

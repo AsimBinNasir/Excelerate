@@ -1,3 +1,4 @@
+import 'package:excelerate/signin.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -40,6 +41,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     } else {
       // Navigate to actual sign in screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SignInPage()),
+      );
     }
   }
 
@@ -80,18 +85,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             page.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: Colors.grey.shade700,
             ),
           ),
           Text(
             page.description,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black54,
+              color: Colors.grey.shade700,
               height: 1.4,
             ),
           ),
@@ -123,9 +128,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      height: 50,
+      height: 65,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(12),
         gradient: const LinearGradient(
           colors: [Color(0xFFFF6A00), Color(0xFFFF00FF)],
           begin: Alignment.centerLeft,

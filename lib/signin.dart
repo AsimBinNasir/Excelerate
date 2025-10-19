@@ -10,6 +10,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +108,19 @@ class _SignInPageState extends State<SignInPage> {
                 const SizedBox(height: 6),
                 TextFormField(
                   decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.pinkAccent,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                     hintText: 'Enter your password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -132,7 +146,8 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                   ),
-                  obscureText: true,
+
+                  obscureText: _obscurePassword,
                   controller: _passwordController,
                 ),
 

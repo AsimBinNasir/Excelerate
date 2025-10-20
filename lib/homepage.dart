@@ -201,7 +201,7 @@ Widget _homeContent() {
                   const SizedBox(height: 16),
                   _courseCard(
                     color: Colors.green,
-                    title: 'UI/UX Design Fundamenntals',
+                    title: 'UI/UX Design Fundamentals',
                     category: 'Design',
                     lessons: 15,
                     rating: 4.9,

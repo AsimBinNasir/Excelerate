@@ -1,3 +1,4 @@
+import 'package:excelerate/homepage.dart';
 import 'package:excelerate/signup.dart';
 import 'package:flutter/material.dart';
 
@@ -185,7 +186,14 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Sign-in action
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
+                      );
+                    },
                     child: Text(
                       'Sign In',
                       style: TextStyle(

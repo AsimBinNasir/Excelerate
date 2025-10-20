@@ -1,3 +1,6 @@
+import 'package:excelerate/explorePage.dart';
+import 'package:excelerate/myCoursesPage.dart';
+import 'package:excelerate/profilePage.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -9,22 +12,43 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  // List of pages for navigation
+  final List<Widget> _pages = const [
+    ExplorePage(),
+    MyCoursesPage(),
+    ProfilePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        titleSpacing: 16,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Image.asset('excelerateLogo0.png', height: 40),
+            Image.asset('assets/excelerateLogo0.png', height: 100),
             IconButton(
               onPressed: () {},
-              icon: Icon(Icons.notifications, size: 20),
+              icon: Icon(Icons.notifications, size: 26),
             ),
           ],
         ),
       ),
+
+      body: _selectedIndex == 0 ? _homeContent() : _pages[_selectedIndex - 1],
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.pinkAccent,
@@ -35,28 +59,30 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'My Courses'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        currentIndex: 0,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
-      body: SafeArea(
+    );
+  }
+}
+
+// Home Page Content
+Widget _homeContent() {
+   return SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Row(
-                children: [
-                  Text(
-                    'Hello, Sarah!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Icon(Icons.waving_hand_rounded, size: 28),
-                ],
+              Text(
+                'Hello, Sarah! 👋',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -164,42 +190,40 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   _courseCard(
-                    color: Colors.blue[50]!,
+                    color: Colors.blue,
                     title: 'Advanced React & Typescript',
                     category: 'Web Development',
                     lessons: 12,
                     rating: 4.8,
                     progress: 0.45,
-                    image: 'assets/react.png',
+                    icon: '💻',
                   ),
                   const SizedBox(height: 16),
                   _courseCard(
-                    color: Colors.green[50]!,
+                    color: Colors.green,
                     title: 'UI/UX Design Fundamenntals',
                     category: 'Design',
                     lessons: 15,
                     rating: 4.9,
                     progress: 0.7,
-                    image: 'assets/uiux.png',
+                    icon: '🎨',
                   ),
                   const SizedBox(height: 16),
                   _courseCard(
-                    color: Colors.orange[50]!,
+                    color: Colors.orange,
                     title: 'Flutter & Dart Masterclass',
                     category: 'Mobile Development',
                     lessons: 20,
                     rating: 4.7,
                     progress: 0.2,
-                    image: 'assets/flutter.png',
+                    icon: '📱',
                   ),
                 ],
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 // Quick Action Widget
@@ -235,48 +259,132 @@ Widget _courseCard({
   required int lessons,
   required double rating,
   required double progress,
-  required String image,
+  required String icon,
 }) {
   return Container(
-    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.symmetric(vertical: 8),
     decoration: BoxDecoration(
-      color: color,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(color: Colors.grey.shade200, blurRadius: 6, spreadRadius: 1),
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.15),
+          blurRadius: 8,
+          spreadRadius: 2,
+          offset: const Offset(0, 4),
+        ),
       ],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(child: Image.asset(image, height: 60)),
-        const SizedBox(height: 12),
-        Text(title, style: TextStyle(color: Colors.grey.shade600)),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '$lessons Lessons  •  ⭐ $rating',
-              style: TextStyle(color: Colors.grey),
+        // 🔹 TOP SECTION (Colored background + Emoji/Icon)
+        Container(
+          height: 130,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
             ),
-            Text(
-              '${(progress * 100).toInt()}%',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+          ),
+          child: Center(
+            child: Text(icon, style: const TextStyle(fontSize: 50)),
+          ),
         ),
-        const SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: progress,
-          color: Colors.pinkAccent,
-          backgroundColor: Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(10),
+
+        // 🔸 BOTTOM SECTION (White background + course details)
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Category chip
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  category,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Title
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: Colors.grey.shade900,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Lessons, rating & progress %
+              Row(
+                children: [
+                  Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$lessons lessons',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(Icons.star, size: 16, color: Colors.amber),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$rating (2.3k)',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              /* // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  color: Colors.pinkAccent,
+                  backgroundColor: Colors.grey.shade300,
+                  minHeight: 6,
+                ),
+              ), */
+
+              // Progress percentage
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  '${(progress * 100).toInt()}%',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     ),

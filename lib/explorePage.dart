@@ -1,3 +1,4 @@
+import 'package:excelerate/mockCourses.dart';
 import 'package:flutter/material.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -8,55 +9,73 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  String _searchQuery = '';
+  String _selectedCategory = 'All';
+
+  final List<String> _categories = categories;
+
+  final List<Map<String, dynamic>> _allCourses = allCourses;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.white, body: _pageContent());
-  }
-}
+    final filteredCourses = _allCourses.where((course) {
+      final matchesCategory =
+          _selectedCategory == 'All' || course['category'] == _selectedCategory;
+      final matchesSearch = course['title'].toString().toLowerCase().contains(
+        _searchQuery,
+      );
+      return matchesCategory && matchesSearch;
+    }).toList();
 
-// Home Page Content
-Widget _pageContent() {
-  return SafeArea(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Text(
-            'Explore Courses',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 28,
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 5),
-
-          // Search box
-          Container(
-            margin: const EdgeInsets.only(top: 20, bottom: 20),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade200,
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Text(
+                'Explore Courses',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search courses, topics...',
-                border: InputBorder.none,
-                prefixIcon: const Icon(Icons.search, color: Colors.pinkAccent),
-                hintStyle: TextStyle(color: Colors.grey.shade500),
+              ),
+              const SizedBox(height: 5),
 
-                enabledBorder: OutlineInputBorder(
+              // Search box
+              Container(
+                margin: const EdgeInsets.only(top: 20, bottom: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade200,
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search courses, topics...',
+                    border: InputBorder.none,
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Colors.pinkAccent,
+                    ),
+                    hintStyle: TextStyle(color: Colors.grey.shade500),
+
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
                         color: Colors.grey.shade400,
@@ -71,52 +90,73 @@ Widget _pageContent() {
                         width: 2,
                       ),
                     ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
+                ),
               ),
-              onChanged: (value) {
-                // TODO: handle search logic here
-                print('User searched: $value');
-              },
-            ),
-          ),
 
-          // Course Cards
-          Column(
-            children: [
-              _courseCard(
-                color: Colors.blue,
-                title: 'Advanced React & Typescript',
-                category: 'Web Development',
-                lessons: 12,
-                rating: 4.8,
-                progress: 0.45,
-                icon: '💻',
+              // Filter options
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _categories.map((category) {
+                    final bool isSelected = _selectedCategory == category;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(category),
+                        selected: isSelected,
+                        selectedColor: Colors.pinkAccent,
+                        backgroundColor: Colors.grey.shade200,
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade700,
+                        ),
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
-              const SizedBox(height: 16),
-              _courseCard(
-                color: Colors.green,
-                title: 'UI/UX Design Fundamentals',
-                category: 'Design',
-                lessons: 15,
-                rating: 4.9,
-                progress: 0.7,
-                icon: '🎨',
-              ),
-              const SizedBox(height: 16),
-              _courseCard(
-                color: Colors.orange,
-                title: 'Flutter & Dart Masterclass',
-                category: 'Mobile Development',
-                lessons: 20,
-                rating: 4.7,
-                progress: 0.2,
-                icon: '📱',
+
+              const SizedBox(height: 20),
+
+              // Course Cards
+              Column(
+                children: filteredCourses.map((course) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: _courseCard(
+                      color: course['category'] == 'Web Development'
+                          ? Colors.blue
+                          : course['category'] == 'Design'
+                          ? Colors.green
+                          : Colors.orange,
+                      title: course['title'],
+                      category: course['category'],
+                      lessons: course['lessons'],
+                      rating: course['rating'],
+                      progress: course['progress'],
+                      icon: course['icon'],
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 // Course Card Widget

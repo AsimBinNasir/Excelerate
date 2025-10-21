@@ -140,7 +140,9 @@ class _ExplorePageState extends State<ExplorePage> {
                           ? Colors.blue
                           : course['category'] == 'Design'
                           ? Colors.green
-                          : Colors.orange,
+                          : course['category'] == 'Mobile Development'
+                          ? Colors.orange
+                          : Colors.red,
                       title: course['title'],
                       category: course['category'],
                       lessons: course['lessons'],

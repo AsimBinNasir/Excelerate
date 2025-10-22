@@ -1,4 +1,5 @@
 import 'package:excelerate/mockCourses.dart';
+import 'package:excelerate/models/courseModel.dart';
 import 'package:flutter/material.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -14,14 +15,14 @@ class _ExplorePageState extends State<ExplorePage> {
 
   final List<String> _categories = categories;
 
-  final List<Map<String, dynamic>> _allCourses = allCourses;
+  final List<Course> _allCourses = allCourses;
 
   @override
   Widget build(BuildContext context) {
     final filteredCourses = _allCourses.where((course) {
       final matchesCategory =
-          _selectedCategory == 'All' || course['category'] == _selectedCategory;
-      final matchesSearch = course['title'].toString().toLowerCase().contains(
+          _selectedCategory == 'All' || course.category == _selectedCategory;
+      final matchesSearch = course.title.toString().toLowerCase().contains(
         _searchQuery,
       );
       return matchesCategory && matchesSearch;
@@ -136,19 +137,19 @@ class _ExplorePageState extends State<ExplorePage> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: _courseCard(
-                      color: course['category'] == 'Web Development'
+                      color: course.category == 'Web Development'
                           ? Colors.blue
-                          : course['category'] == 'Design'
+                          : course.category == 'Design'
                           ? Colors.green
-                          : course['category'] == 'Mobile Development'
+                          : course.category == 'Mobile Development'
                           ? Colors.orange
                           : Colors.red,
-                      title: course['title'],
-                      category: course['category'],
-                      lessons: course['lessons'],
-                      rating: course['rating'],
-                      progress: course['progress'],
-                      icon: course['icon'],
+                      title: course.title,
+                      category: course.category,
+                      lessons: course.lessons,
+                      rating: course.rating,
+                      progress: course.progress,
+                      icon: course.icon,
                     ),
                   );
                 }).toList(),

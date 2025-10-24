@@ -26,13 +26,13 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xf9fafbff),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xf9fafbff),
         elevation: 0,
         titleSpacing: 16,
         title: Row(
@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.pinkAccent,
+        selectedLabelStyle: TextStyle(color: Colors.purple),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -68,186 +69,199 @@ class _HomePageState extends State<HomePage> {
 
 // Home Page Content
 Widget _homeContent() {
-   return SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Text(
-                'Hello, Sarah! 👋',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ready to continue your learning today?',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 30),
+  return SafeArea(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Text(
+            'Hello, Sarah! 👋',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 28,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ready to continue your learning today?',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 30),
 
-              // Progress card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.pinkAccent, Colors.deepOrangeAccent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          // Progress card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.pinkAccent, Colors.deepOrangeAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Current Progress',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Current Progress',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    LinearPercentIndicator(
-                      lineHeight: 8,
-                      percent: 0.6,
-                      backgroundColor: Colors.white30,
-                      progressColor: Colors.white,
-                      barRadius: const Radius.circular(10),
-                    ),
-                    const Text(
-                      '3 of 5 courses completed this month',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'level 3',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 16),
+                LinearPercentIndicator(
+                  lineHeight: 8,
+                  percent: 0.6,
+                  backgroundColor: Colors.white30,
+                  progressColor: Colors.white,
+                  barRadius: const Radius.circular(10),
                 ),
-              ),
-              const SizedBox(height: 24),
-
-              // Quick Action Rows
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _quickAction(Icons.explore, 'Browse'),
-                  _quickAction(Icons.favorite, 'Favorites'),
-                  _quickAction(Icons.bar_chart, 'Progress'),
-                  _quickAction(Icons.emoji_events, 'Achievements'),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Continue Learning Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Continue Learning',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  TextButton(
-                    onPressed: () {},
+                const Text(
+                  '3 of 5 courses completed this month',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: const Text(
-                      'See All',
-                      style: TextStyle(
-                        color: Colors.pinkAccent,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      'level 3',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
 
-              // Course Cards
-              Column(
-                children: [
-                  _courseCard(
-                    color: Colors.blue,
-                    title: 'Advanced React & Typescript',
-                    category: 'Web Development',
-                    lessons: 12,
-                    rating: 4.8,
-                    progress: 0.45,
-                    icon: '💻',
+          // Quick Action Rows
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _quickAction('📖', 'Browse'),
+              _quickAction('⭐️', 'Favorites'),
+              _quickAction('📊', 'Progress'),
+              _quickAction('🏆', 'Achievements'),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Continue Learning Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Continue Learning',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'See All',
+                  style: TextStyle(
+                    color: Colors.pinkAccent,
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 16),
-                  _courseCard(
-                    color: Colors.green,
-                    title: 'UI/UX Design Fundamentals',
-                    category: 'Design',
-                    lessons: 15,
-                    rating: 4.9,
-                    progress: 0.7,
-                    icon: '🎨',
-                  ),
-                  const SizedBox(height: 16),
-                  _courseCard(
-                    color: Colors.orange,
-                    title: 'Flutter & Dart Masterclass',
-                    category: 'Mobile Development',
-                    lessons: 20,
-                    rating: 4.7,
-                    progress: 0.2,
-                    icon: '📱',
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-      );
+          const SizedBox(height: 16),
+
+          // Course Cards
+          Column(
+            children: [
+              _courseCard(
+                color: Colors.blue,
+                title: 'Advanced React & Typescript',
+                category: 'Web Development',
+                lessons: 12,
+                rating: 4.8,
+                progress: 0.45,
+                icon: '💻',
+              ),
+              const SizedBox(height: 16),
+              _courseCard(
+                color: Colors.green,
+                title: 'UI/UX Design Fundamentals',
+                category: 'Design',
+                lessons: 15,
+                rating: 4.9,
+                progress: 0.7,
+                icon: '🎨',
+              ),
+              const SizedBox(height: 16),
+              _courseCard(
+                color: Colors.orange,
+                title: 'Flutter & Dart Masterclass',
+                category: 'Mobile Development',
+                lessons: 20,
+                rating: 4.7,
+                progress: 0.2,
+                icon: '📱',
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 // Quick Action Widget
-Widget _quickAction(IconData icon, String label) {
-  return Column(
-    children: [
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              blurRadius: 6,
-              spreadRadius: 1,
-            ),
-          ],
+Widget _quickAction(String emoji, String label) {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.shade300,
+          blurRadius: 6,
+          spreadRadius: 1,
         ),
-        child: Icon(icon, color: Colors.pinkAccent, size: 28),
-      ),
-      const SizedBox(height: 8),
-      Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-    ],
+      ],
+    ),
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade300,
+                blurRadius: 6,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Text(emoji, style: TextStyle(fontSize: 28)),
+        ),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+      ],
+    ),
   );
 }
 

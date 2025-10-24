@@ -28,7 +28,7 @@ class _MyCoursesPageState extends State<MyCoursesPage> {
               .toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xf9fafbff),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),

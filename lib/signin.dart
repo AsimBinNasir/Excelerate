@@ -1,4 +1,4 @@
-import 'package:excelerate/homepage.dart';
+import 'package:excelerate/home_page.dart';
 import 'package:excelerate/signup.dart';
 import 'package:flutter/material.dart';
 

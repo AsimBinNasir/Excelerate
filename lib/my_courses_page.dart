@@ -1,32 +1,31 @@
-import 'package:excelerate/mockCourses.dart';
-import 'package:excelerate/models/courseModel.dart';
+import 'package:excelerate/mock_courses.dart';
 import 'package:flutter/material.dart';
 
-class ExplorePage extends StatefulWidget {
-  const ExplorePage({super.key});
+class MyCoursesPage extends StatefulWidget {
+  const MyCoursesPage({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
+  State<MyCoursesPage> createState() => _MyCoursesPageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> {
-  String _searchQuery = '';
+class _MyCoursesPageState extends State<MyCoursesPage> {
   String _selectedCategory = 'All';
-
-  final List<String> _categories = categories;
-
-  final List<Course> _allCourses = allCourses;
+  final List<String> _categories = ['All', 'In Progress', 'Saved', 'Completed'];
 
   @override
   Widget build(BuildContext context) {
-    final filteredCourses = _allCourses.where((course) {
-      final matchesCategory =
-          _selectedCategory == 'All' || course.category == _selectedCategory;
-      final matchesSearch = course.title.toString().toLowerCase().contains(
-        _searchQuery,
-      );
-      return matchesCategory && matchesSearch;
-    }).toList();
+    final filteredCourses = _selectedCategory == 'All'
+        ? allCourses
+              .where(
+                (course) =>
+                    course.status == 'In Progress' ||
+                    course.status == 'Completed' ||
+                    course.status == 'Saved',
+              )
+              .toList()
+        : allCourses
+              .where((course) => course.status == _selectedCategory)
+              .toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -38,7 +37,7 @@ class _ExplorePageState extends State<ExplorePage> {
             children: [
               // Header
               Text(
-                'Explore Courses',
+                'My Courses',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -47,58 +46,6 @@ class _ExplorePageState extends State<ExplorePage> {
                 ),
               ),
               const SizedBox(height: 5),
-
-              // Search box
-              Container(
-                margin: const EdgeInsets.only(top: 20, bottom: 20),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade200,
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search courses, topics...',
-                    border: InputBorder.none,
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Colors.pinkAccent,
-                    ),
-                    hintStyle: TextStyle(color: Colors.grey.shade500),
-
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade400,
-                        width: 1.5,
-                      ),
-                    ),
-
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.pinkAccent,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value.toLowerCase();
-                    });
-                  },
-                ),
-              ),
 
               // Filter options
               SingleChildScrollView(
@@ -132,28 +79,43 @@ class _ExplorePageState extends State<ExplorePage> {
               const SizedBox(height: 20),
 
               // Course Cards
-              Column(
-                children: filteredCourses.map((course) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: _courseCard(
-                      color: course.category == 'Web Development'
-                          ? Colors.blue
-                          : course.category == 'Design'
-                          ? Colors.green
-                          : course.category == 'Mobile Development'
-                          ? Colors.orange
-                          : Colors.red,
-                      title: course.title,
-                      category: course.category,
-                      lessons: course.lessons,
-                      rating: course.rating,
-                      progress: course.progress,
-                      icon: course.icon,
+              if (filteredCourses.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'No courses found in $_selectedCategory',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 16,
+                      ),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                )
+              else
+                Column(
+                  children: filteredCourses.map((course) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: _courseCard(
+                        color: course.category == 'Web Development'
+                            ? Colors.blue
+                            : course.category == 'Design'
+                            ? Colors.green
+                            : course.category == 'Mobile Development'
+                            ? Colors.orange
+                            : Colors.red,
+                        title: course.title,
+                        category: course.category,
+                        lessons: course.lessons,
+                        rating: course.rating,
+                        progress: course.progress,
+                        icon: course.icon,
+                        status: course.status,
+                      ),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
         ),
@@ -171,6 +133,7 @@ Widget _courseCard({
   required double rating,
   required double progress,
   required String icon,
+  String? status,
 }) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -189,19 +152,53 @@ Widget _courseCard({
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 🔹 TOP SECTION (Colored background + Emoji/Icon)
-        Container(
-          height: 130,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+        Stack(
+          children: [
+            Container(
+              height: 130,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: status == 'Completed'
+                    ? Colors.green.shade100
+                    : status == 'In Progress'
+                    ? Colors.orange.shade100
+                    : status == 'Saved'
+                    ? Colors.blue.shade100
+                    : Colors.grey.shade200,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Center(
+                child: Text(icon, style: const TextStyle(fontSize: 50)),
+              ),
             ),
-          ),
-          child: Center(
-            child: Text(icon, style: const TextStyle(fontSize: 50)),
-          ),
+            // if check status if null
+            if (status != null && status.isNotEmpty)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
 
         // 🔸 BOTTOM SECTION (White background + course details)
@@ -271,7 +268,26 @@ Widget _courseCard({
               ),
               const SizedBox(height: 8),
 
-              /* // Progress bar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Progress'),
+                  // Progress percentage
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      '${(progress * 100).toInt()}%',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Progress bar
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
@@ -281,19 +297,6 @@ Widget _courseCard({
                   minHeight: 6,
                 ),
               ),
-
-              // Progress percentage
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Text(
-                  '${(progress * 100).toInt()}%',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ), */
             ],
           ),
         ),

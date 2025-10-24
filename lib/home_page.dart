@@ -1,6 +1,6 @@
-import 'package:excelerate/explorePage.dart';
-import 'package:excelerate/myCoursesPage.dart';
-import 'package:excelerate/profilePage.dart';
+import 'package:excelerate/explore_page.dart';
+import 'package:excelerate/my_courses_page.dart';
+import 'package:excelerate/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 

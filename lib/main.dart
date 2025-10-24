@@ -1,4 +1,4 @@
-import 'package:excelerate/onboardingScreen.dart';
+import 'package:excelerate/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

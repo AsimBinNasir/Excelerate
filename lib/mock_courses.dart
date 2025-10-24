@@ -1,5 +1,5 @@
 // lib/mock_courses.dart
-import 'models/courseModel.dart';
+import 'models/course_model.dart';
 
 final List<String> categories = [
   'All',

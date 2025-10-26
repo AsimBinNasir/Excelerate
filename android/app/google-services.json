@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "648817884559",
+    "project_id": "excelerate-xlr8",
+    "storage_bucket": "excelerate-xlr8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648817884559:android:b1acec703173eaa4cb1ffa",
+        "android_client_info": {
+          "package_name": "com.example.excelerate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCboeMhEhsazLkH6HWbizWgsIETPypEd-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

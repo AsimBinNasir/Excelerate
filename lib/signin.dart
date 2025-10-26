@@ -1,6 +1,8 @@
 import 'package:excelerate/home_page.dart';
 import 'package:excelerate/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -13,6 +15,50 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _signInWithEmail() async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Sign-in failed')),
+      );
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return; // user canceled
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google sign-in failed: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,38 +73,25 @@ class _SignInPageState extends State<SignInPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Welcome Back!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text('Welcome Back!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                Text(
-                  'Sign in to continue your learning journey',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('Sign in to continue your learning journey',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
-
-                // Email field
+                // Email
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Email Address',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: Text('Email Address',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -66,241 +99,130 @@ class _SignInPageState extends State<SignInPage> {
                   decoration: InputDecoration(
                     hintText: 'your.email@example.com',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade400,
-                        width: 1.5,
-                      ),
+                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                     ),
-
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.pinkAccent,
-                        width: 2,
-                      ),
+                      borderSide: const BorderSide(color: Colors.pinkAccent, width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
                 ),
                 const SizedBox(height: 20),
-
-                // Password field
+                // Password
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: Text('Password',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 6),
                 TextFormField(
                   decoration: InputDecoration(
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.pinkAccent,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
+                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.pinkAccent),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword)),
                     hintText: 'Enter your password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade400,
-                        width: 1.5,
-                      ),
-                    ),
-
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5)),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.pinkAccent,
-                        width: 2,
-                      ),
-                    ),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.pinkAccent, width: 2)),
                   ),
-
                   obscureText: _obscurePassword,
                   controller: _passwordController,
                 ),
-
                 const SizedBox(height: 6),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Colors.pinkAccent,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: () {
-                      // Password forgot action
-                    },
+                    child: const Text('Forgot Password?', style: TextStyle(color: Colors.pinkAccent, fontSize: 14, fontWeight: FontWeight.bold)),
+                    onPressed: () {},
                   ),
                 ),
-
                 const SizedBox(height: 20),
-                // sign-in button
+                // Sign in button
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   height: 65,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF6A00), Color(0xFFFF00FF)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF6A00), Color(0xFFFF00FF)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )),
                   child: TextButton(
-                    onPressed: () {
-                      // Sign-in action
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()),
-                      );
-                    },
-                    child: Text(
-                      'Sign In',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+                    onPressed: _signInWithEmail,
+                    child: const Text('Sign In', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
                   ),
                 ),
-
                 const SizedBox(height: 20),
+                // or continue with
                 Row(
                   children: [
-                    Expanded(child: const Divider(thickness: 1)),
+                    const Expanded(child: Divider(thickness: 1)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        'or continue with',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
+                      child: Text('or continue with',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey.shade600)),
                     ),
-                    Expanded(child: const Divider(thickness: 1)),
+                    const Expanded(child: Divider(thickness: 1)),
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // sign-in google button
+                // Google Sign-in
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   height: 65,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        blurRadius: 6,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(color: Colors.grey.shade300, blurRadius: 6, spreadRadius: 2, offset: const Offset(0, 2))
+                      ]),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: _signInWithGoogle,
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black87,
                       padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          'assets/google_logo.png',
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.contain,
-                        ),
+                        Image.asset('assets/google_logo.png', height: 40, width: 40),
                         const SizedBox(width: 12),
                         Flexible(
-                          child: Text(
-                            'Sign in with Google',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
+                            child: Text('Sign in with Google',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.grey.shade700))),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
+                // Sign Up redirect
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Don\'t have an account?',
-                      style: TextStyle(color: Colors.grey.shade700),
-                    ),
+                    Text('Don\'t have an account?', style: TextStyle(color: Colors.grey.shade700)),
                     TextButton(
-                      child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.pinkAccent,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignUpPage()),
-                        );
-                      },
-                    ),
+                        onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignUpPage())),
+                        child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pinkAccent))),
                   ],
                 ),
               ],

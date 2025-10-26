@@ -1,3 +1,4 @@
+import 'package:excelerate/signin.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -8,11 +9,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool isDarkMode = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
-      //appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -32,14 +34,14 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: Column(
-                children: [
-                  const CircleAvatar(
+                children: const [
+                  CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 50, color: Colors.grey),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
+                  SizedBox(height: 20),
+                  Text(
                     'Sarah Anderson',
                     style: TextStyle(
                       color: Colors.white,
@@ -47,35 +49,34 @@ class _ProfilePageState extends State<ProfilePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
+                  SizedBox(height: 10),
+                  Text(
                     'sarah.anderson@email.com',
                     style: TextStyle(color: Colors.white70),
                   ),
-                  
                 ],
               ),
             ),
 
             const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _statItem(value: "12", label: "Courses"),
-                      _statItem(value: "45", label: "Hours"),
-                      _statItem(value: "8", label: "Certificates"),
-                    ],
-                  ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: const [
+                _statItem(value: "12", label: "Courses"),
+                _statItem(value: "45", label: "Hours"),
+                _statItem(value: "8", label: "Certificates"),
+              ],
+            ),
             const SizedBox(height: 20),
 
             // Account
-            _SectionTitle(title: "Account"),
-            _ListTileItem(
+            const _SectionTitle(title: "Account"),
+            const _ListTileItem(
               icon: Icons.edit,
               title: "Edit Profile",
               subtitle: "Update your personal information",
             ),
-            _ListTileItem(
+            const _ListTileItem(
               icon: Icons.lock_outline,
               title: "Change Password",
               subtitle: "Update your security settings",
@@ -83,8 +84,8 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 15),
 
             // Preferences
-            _SectionTitle(title: "Preferences"),
-            _ListTileItem(
+            const _SectionTitle(title: "Preferences"),
+            const _ListTileItem(
               icon: Icons.notifications_none,
               title: "Notifications",
               subtitle: "Manage notification preferences",
@@ -92,9 +93,12 @@ class _ProfilePageState extends State<ProfilePage> {
             _ListTileItem(
               icon: Icons.dark_mode_outlined,
               title: "Dark Mode",
-              trailing: Switch(value: false, onChanged: (v) {}),
+              trailing: Switch(
+                value: false,
+                onChanged: (v) {},
+              ),
             ),
-            _ListTileItem(
+            const _ListTileItem(
               icon: Icons.language,
               title: "Language",
               subtitle: "English (US)",
@@ -102,18 +106,18 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 15),
 
             // Support
-            _SectionTitle(title: "Support"),
-            _ListTileItem(
+            const _SectionTitle(title: "Support"),
+            const _ListTileItem(
               icon: Icons.help_outline,
               title: "Help Center",
               subtitle: "Get answers to your questions",
             ),
-            _ListTileItem(
+            const _ListTileItem(
               icon: Icons.support_agent,
               title: "Contact Support",
               subtitle: "We're here to help",
             ),
-            _ListTileItem(
+            const _ListTileItem(
               icon: Icons.star_border,
               title: "Rate Our App",
               subtitle: "Share your feedback",
@@ -121,13 +125,13 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 15),
 
             // Legal
-            _SectionTitle(title: "Legal"),
-            _ListTileItem(
+            const _SectionTitle(title: "Legal"),
+            const _ListTileItem(
               icon: Icons.description_outlined,
               title: "Terms of Service",
               subtitle: "Read our terms",
             ),
-            _ListTileItem(
+            const _ListTileItem(
               icon: Icons.privacy_tip_outlined,
               title: "Privacy Policy",
               subtitle: "How we protect your data",
@@ -138,7 +142,14 @@ class _ProfilePageState extends State<ProfilePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignInPage(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   minimumSize: const Size(double.infinity, 50),
@@ -179,7 +190,7 @@ class _statItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.deepPurple,
@@ -206,7 +217,7 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 10, 0, 5),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.grey,
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -239,8 +250,7 @@ class _ListTileItem extends StatelessWidget {
         leading: Icon(icon, color: Colors.grey[700]),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: subtitle != null ? Text(subtitle!) : null,
-        trailing:
-            trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
       ),
       color: Colors.white,
     );

@@ -1,5 +1,7 @@
-import 'package:excelerate/signin.dart';
+// import 'package:excelerate/signin.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,6 +12,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool isDarkMode = false;
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
+  Future<void> _signOut() async {
+    try {
+      // Sign out from Firebase and Google
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      // No manual navigation needed; AuthWrapper in main.dart handles redirection
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign out failed: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header
+            // Header with user info
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -34,25 +51,25 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: Column(
-                children: const [
-                  CircleAvatar(
+                children: [
+                  const CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 50, color: Colors.grey),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
-                    'Sarah Anderson',
-                    style: TextStyle(
+                    currentUser?.displayName ?? 'User Name',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    'sarah.anderson@email.com',
-                    style: TextStyle(color: Colors.white70),
+                    currentUser?.email ?? 'No Email Found',
+                    style: const TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
@@ -62,14 +79,14 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: const [
-                _statItem(value: "12", label: "Courses"),
-                _statItem(value: "45", label: "Hours"),
-                _statItem(value: "8", label: "Certificates"),
+                _StatItem(value: "12", label: "Courses"),
+                _StatItem(value: "45", label: "Hours"),
+                _StatItem(value: "8", label: "Certificates"),
               ],
             ),
             const SizedBox(height: 20),
 
-            // Account
+            // Account Section
             const _SectionTitle(title: "Account"),
             const _ListTileItem(
               icon: Icons.edit,
@@ -83,12 +100,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 15),
 
-            // Preferences
+            // Preferences Section
             const _SectionTitle(title: "Preferences"),
             const _ListTileItem(
               icon: Icons.notifications_none,
               title: "Notifications",
-              subtitle: "Manage notification preferences",
+              subtitle: "Manage notifications",
             ),
             _ListTileItem(
               icon: Icons.dark_mode_outlined,
@@ -105,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 15),
 
-            // Support
+            // Support Section
             const _SectionTitle(title: "Support"),
             const _ListTileItem(
               icon: Icons.help_outline,
@@ -115,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const _ListTileItem(
               icon: Icons.support_agent,
               title: "Contact Support",
-              subtitle: "We're here to help",
+              subtitle: "We are here to help",
             ),
             const _ListTileItem(
               icon: Icons.star_border,
@@ -124,7 +141,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 15),
 
-            // Legal
+            // Legal Section
             const _SectionTitle(title: "Legal"),
             const _ListTileItem(
               icon: Icons.description_outlined,
@@ -138,18 +155,11 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 50),
 
-            // Sign-out button
+            // Sign Out Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignInPage(),
-                    ),
-                  );
-                },
+                onPressed: _signOut,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   minimumSize: const Size(double.infinity, 50),
@@ -164,11 +174,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 40),
-
-            const Text(
-              'Version 1.0.0',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
+            const Text('Version 1.0.0',
+                style: TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 50),
           ],
         ),
@@ -177,16 +184,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// Helper widgets
-class _statItem extends StatelessWidget {
+// Helper Classes
+
+class _StatItem extends StatelessWidget {
   final String value;
   final String label;
-  const _statItem({required this.value, required this.label});
+  const _StatItem({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           value,
@@ -197,10 +204,8 @@ class _statItem extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.black, fontSize: 12),
-        ),
+        Text(label,
+            style: const TextStyle(color: Colors.black, fontSize: 12)),
       ],
     );
   }
@@ -213,8 +218,8 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.centerLeft,
       padding: const EdgeInsets.fromLTRB(20, 10, 0, 5),
+      alignment: Alignment.centerLeft,
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
@@ -243,16 +248,16 @@ class _ListTileItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
       child: ListTile(
         leading: Icon(icon, color: Colors.grey[700]),
+        trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: subtitle != null ? Text(subtitle!) : null,
-        trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
       ),
-      color: Colors.white,
     );
   }
 }

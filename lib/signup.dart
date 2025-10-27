@@ -31,10 +31,15 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     try {
-      await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      // Set display name from full name field
+      await userCredential.user?.updateDisplayName(_fullnameController.text.trim());
+      await userCredential.user?.reload(); // refresh user info
+
       if (!mounted) return;
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomePage()));
@@ -58,7 +63,16 @@ class _SignUpPageState extends State<SignUpPage> {
         idToken: googleAuth.idToken,
       );
 
-      await _auth.signInWithCredential(credential);
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+      // Set display name from email before "@", only if not already set
+      if (userCredential.user?.displayName == null || userCredential.user!.displayName!.isEmpty) {
+        String email = userCredential.user!.email ?? '';
+        String name = email.contains('@') ? email.split('@')[0] : email;
+        await userCredential.user?.updateDisplayName(name);
+        await userCredential.user?.reload();
+      }
+
       if (!mounted) return;
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => const HomePage()));
@@ -97,7 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: TextStyle(
                         fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
-
+                
                 // Full Name
                 Align(
                   alignment: Alignment.centerLeft,
@@ -240,26 +254,10 @@ class _SignUpPageState extends State<SignUpPage> {
                               fontSize: 16,
                               color: Colors.white))),
                 ),
+
                 const SizedBox(height: 20),
 
-                // Divider text
-                Row(
-                  children: [
-                    const Expanded(child: Divider(thickness: 1)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text('or sign up with',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.grey.shade600)),
-                    ),
-                    const Expanded(child: Divider(thickness: 1)),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Google sign-up button
+                // Google signup
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -297,6 +295,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
+                
                 const SizedBox(height: 20),
 
                 // Already have account

@@ -159,12 +159,12 @@ Widget _courseCard({
               width: double.infinity,
               decoration: BoxDecoration(
                 color: status == 'Completed'
-                    ? Colors.green.shade100
+                    ? Colors.lightGreen[800]
                     : status == 'In Progress'
-                    ? Colors.orange.shade100
+                    ? Colors.amberAccent[700]
                     : status == 'Saved'
-                    ? Colors.blue.shade100
-                    : Colors.grey.shade200,
+                    ? Colors.pinkAccent[700]
+                    : Colors.grey.shade500,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -191,7 +191,13 @@ Widget _courseCard({
                   child: Text(
                     status,
                     style: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: status == 'Completed'
+                          ? Colors.lightGreen[800]
+                          : status == 'In Progress'
+                          ? Colors.amberAccent[700]
+                          : status == 'Saved'
+                          ? Colors.pinkAccent[700]
+                          : Colors.grey.shade500,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -254,14 +260,14 @@ Widget _courseCard({
                   const SizedBox(width: 4),
                   Text(
                     '$lessons lessons',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
                   const SizedBox(width: 12),
                   Icon(Icons.star, size: 16, color: Colors.amber),
                   const SizedBox(width: 4),
                   Text(
                     '$rating (2.3k)',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
                   const Spacer(),
                 ],
@@ -279,13 +285,14 @@ Widget _courseCard({
                       '${(progress * 100).toInt()}%',
                       style: TextStyle(
                         color: Colors.grey.shade600,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 6),
 
               // Progress bar
               ClipRRect(
@@ -297,6 +304,7 @@ Widget _courseCard({
                   minHeight: 6,
                 ),
               ),
+              SizedBox(height: 4),
             ],
           ),
         ),

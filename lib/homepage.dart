@@ -230,7 +230,10 @@ Widget _homeContent() {
 // Quick Action Widget
 Widget _quickAction(String emoji, String label) {
   return Container(
+    width: 85,
+    height: 85,
     decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey.shade300),
       color: Colors.white,
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
@@ -238,28 +241,17 @@ Widget _quickAction(String emoji, String label) {
           color: Colors.grey.shade300,
           blurRadius: 6,
           spreadRadius: 1,
+          offset: const Offset(0, 2),
         ),
       ],
     ),
     child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade300,
-                blurRadius: 6,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Text(emoji, style: TextStyle(fontSize: 28)),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(emoji, style: TextStyle(fontSize: 30)),
+        const SizedBox(height: 6),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11)),
       ],
     ),
   );

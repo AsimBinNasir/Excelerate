@@ -3,11 +3,20 @@
 class Course {
   final String title;
   final String category;
+  final String icon;
   final int lessons;
   final double rating;
   final double progress;
-  final String icon;
   final String status;
+  final String instructor;
+  final String role;
+  final int students;
+  final double duration;
+  final int reviews;
+  final int numStudents;
+  final String description;
+  final double totalTime;
+  final List<Map<String, dynamic>> lessonsList;
 
   const Course({
     required this.title,
@@ -17,6 +26,15 @@ class Course {
     required this.progress,
     required this.icon,
     required this.status,
+    required this.instructor,
+    required this.role,
+    required this.students,
+    required this.duration,
+    required this.reviews,
+    required this.numStudents,
+    required this.description,
+    required this.totalTime,
+    required this.lessonsList,
   });
 
   // optional fromMap() helper
@@ -29,6 +47,15 @@ class Course {
       progress: map['progress'],
       icon: map['icon'],
       status: map['status'],
+      instructor: map['instructor'],
+      role: map['role'],
+      students: map['students'],
+      duration: map['duration'],
+      reviews: map['reviews'],
+      lessonsList: [],
+      numStudents: map['numStudents'],
+      description: map['description'],
+      totalTime: map['totalTime'],
     );
   }
 

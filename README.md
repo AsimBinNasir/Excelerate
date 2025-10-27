@@ -20,8 +20,10 @@ The app focuses on **intuitive navigation**, **personalized learning**, and **cr
 ## How the App Works
 
 1. **Onboarding & Authentication**  
-   - Users sign up via email or social accounts (Google, Apple).  
-   - Secure login with password recovery.  
+   - Users can now **sign up and sign in using Firebase Authentication**.  
+   - Email/Password registration and **Google Sign-In** are fully implemented.  
+   - **Loading indicators** are displayed during login and signup to prevent multiple requests.  
+   - **Error handling** provides user feedback for invalid credentials, weak passwords, or network issues.  
 
 2. **Learning Dashboard**  
    - Personalized greeting and progress overview.  
@@ -43,6 +45,21 @@ The app focuses on **intuitive navigation**, **personalized learning**, and **cr
 6. **Profile & Account Management**  
    - Edit profile, change password, manage preferences (notifications, dark mode).  
    - Access help/support and legal info.  
+   - Users are now redirected to their **Profile Page** after successful sign-up or login.  
+
+---
+
+## Week 3 Updates 🗓️
+
+- Integrated **Firebase Auth** and **Firebase Core**.  
+- Implemented **Email/Password Sign-In and Sign-Up** flows.  
+- Added **Google Sign-In** authentication.  
+- Introduced **loading states** during authentication processes.  
+- Added **error handling** with user feedback (SnackBars and dialogs).  
+- Navigation updated:  
+  - **Sign-In → Home → Profile**  
+  - **Sign-Up → Profile**  
+  - **Google Sign-In → Profile**  
 
 ---
 
@@ -50,8 +67,8 @@ The app focuses on **intuitive navigation**, **personalized learning**, and **cr
 - **Framework:** Flutter 3.x  
 - **Language:** Dart  
 - **State Management:** Provider / Riverpod / Bloc  
-- **Backend:** Firebase (Auth, Firestore, Storage) or REST API  
-- **Database:** Firebase Firestore / PostgreSQL / MongoDB  
+- **Backend:** Firebase (Auth, Firestore, Storage)  
+- **Database:** Firebase Firestore  
 
 ---
 

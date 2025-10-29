@@ -1,5 +1,7 @@
 // Course model
 // lib/models/courseModel.dart
+import 'package:flutter/material.dart';
+
 class Course {
   final String title;
   final String category;
@@ -17,6 +19,7 @@ class Course {
   final String description;
   final double totalTime;
   final List<Map<String, dynamic>> lessonsList;
+  final BuildContext? context;
 
   const Course({
     required this.title,
@@ -35,6 +38,7 @@ class Course {
     required this.description,
     required this.totalTime,
     required this.lessonsList,
+    this.context
   });
 
   // optional fromMap() helper

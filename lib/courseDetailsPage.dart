@@ -142,46 +142,50 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                           ],
                         ),
                         const SizedBox(height: 12),
-
-                        Text(
-                          '⭐️ ${course.rating} (${course.reviews} reviews)',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
-                          ),
-                        ),
-
-                        Row(
-                          children: [
-                            Text(
-                              '👥 ${course.numStudents} students',
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '⏰ ${course.totalTime} hours',
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        Text(
-                          '📱 Mobile & Desktop',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
                       ],
                     ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      '⭐️ ${course.rating} (${course.reviews} reviews)',
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 13,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Text(
+                          '👥 ${course.numStudents} students',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '⏰ ${course.totalTime} hours',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                      '📱 Mobile & Desktop',
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
                     // Tabs
                     TabBar(

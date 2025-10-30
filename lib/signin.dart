@@ -1,6 +1,7 @@
 import 'package:excelerate/homepage.dart';
 import 'package:excelerate/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:excelerate/services/mockAuthService.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -10,9 +11,42 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  final _authService = MockAuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  void _handleSignin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage('Please enter email and password');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await _authService.signIn(email: email, password: password);
+
+    setState(() => _isLoading = false);
+
+    _showMessage(result['message']);
+
+    if (result['success']) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,20 +222,18 @@ class _SignInPageState extends State<SignInPage> {
                   child: TextButton(
                     onPressed: () {
                       // Sign-in action
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()),
-                      );
+                      _isLoading ? null : _handleSignin();
                     },
-                    child: Text(
-                      'Sign In',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
 

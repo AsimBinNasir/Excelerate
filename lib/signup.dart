@@ -1,5 +1,6 @@
 import 'package:excelerate/signin.dart';
 import 'package:flutter/material.dart';
+import 'package:excelerate/services/mockAuthService.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -9,17 +10,62 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final _authService = MockAuthService();
   final TextEditingController _fullnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController(); 
-  final TextEditingController _confirmpasswordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmpasswordController =
+      TextEditingController();
   bool _obscurePassword = true;
   bool _obscureconfirmPassword = true;
+  bool _isLoading = false;
+
+  void _handleSignup() async {
+    final name = _fullnameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirm = _confirmpasswordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
+      _showMessage('Please fill all fields');
+      return;
+    }
+
+    if (password != confirm) {
+      _showMessage('Passwords do not match');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await _authService.signUp(
+      fullName: name,
+      email: email,
+      password: password,
+    );
+
+    setState(() => _isLoading = false);
+
+    _showMessage(result['message']);
+
+    if (result['success']) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const SignInPage()),
+      );
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  const Color(0xf9fafbff),
+      backgroundColor: const Color(0xf9fafbff),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
@@ -275,15 +321,19 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                   child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+                    onPressed: () {
+                      _isLoading ? null : _handleSignup();
+                    },
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
 

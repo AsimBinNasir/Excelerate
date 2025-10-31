@@ -20,6 +20,15 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscureconfirmPassword = true;
   bool _isLoading = false;
 
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool _isValidPassword(String password) {
+    return password.length >= 8;
+  }
+
   void _handleSignup() async {
     final name = _fullnameController.text.trim();
     final email = _emailController.text.trim();
@@ -28,6 +37,16 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
       _showMessage('Please fill all fields');
+      return;
+    }
+
+    if (_isValidEmail(email)) {
+      _showMessage('Please enter valid email address');
+      return;
+    }
+
+    if (_isValidPassword(password)) {
+      _showMessage('Password must be at least 8 characters');
       return;
     }
 

@@ -17,12 +17,22 @@ class _SignInPageState extends State<SignInPage> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
+  bool _isValidEmail(email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
   void _handleSignin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       _showMessage('Please enter email and password');
+      return;
+    }
+
+    if (_isValidEmail(email)) {
+      _showMessage('Invalid email format');
       return;
     }
 

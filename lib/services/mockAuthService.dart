@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MockAuthService {
   static const _usersKey = 'mock_users';
   static const _currentUserKey = 'current_user';
+  static const _rememberMeKey = 'remember_me';
 
   // Simulated in-memory user db
   // final List<Map<String, String>> _users = [];
@@ -39,15 +40,24 @@ class MockAuthService {
   // Get current logged in user
   Future<Map<String, String>?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
+    final rememberMe = prefs.getBool(_rememberMeKey) ?? false;
+    if (!rememberMe) return null; // only auto-login when remember me was set
+
     final jsonString = prefs.getString(_currentUserKey);
     if (jsonString == null) return null;
     return Map<String, String>.from(jsonDecode(jsonString));
+  }
+
+  Future<void> setRememberMe(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_rememberMeKey, value);
   }
 
   // Remove current logged in user
   Future<void> signOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_currentUserKey);
+    await prefs.setBool(_rememberMeKey, false);
   }
 
   // Register new user
@@ -83,6 +93,7 @@ class MockAuthService {
   Future<Map<String, dynamic>> signIn({
     required String email,
     required String password,
+    required bool rememberMe,
   }) async {
     await _simulatedNetworkDelay();
     final users = await _loadUsers();
@@ -97,6 +108,7 @@ class MockAuthService {
     }
 
     await _saveCurrentUser(Map<String, String>.from(user));
+    await setRememberMe(rememberMe);
 
     return {'success': true, 'message': 'Login successful', 'user': user};
   }

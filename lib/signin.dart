@@ -16,13 +16,14 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _rememberMe = false;
 
   bool _isValidEmail(email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
   }
 
-  void _handleSignin() async {
+  Future<void> _handleSignin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -38,7 +39,11 @@ class _SignInPageState extends State<SignInPage> {
 
     setState(() => _isLoading = true);
 
-    final result = await _authService.signIn(email: email, password: password);
+    final result = await _authService.signIn(
+      email: email,
+      password: password,
+      rememberMe: _rememberMe,
+    );
 
     setState(() => _isLoading = false);
 
@@ -195,6 +200,25 @@ class _SignInPageState extends State<SignInPage> {
 
                   obscureText: _obscurePassword,
                   controller: _passwordController,
+                ),
+
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: _rememberMe,
+                      onChanged: (value) {
+                        setState(() {
+                          _rememberMe = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Remember me',
+                      style: TextStyle(fontSize: 10, color: Colors.pinkAccent),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 6),

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAuthService {
   static const _usersKey = 'mock_users';
+  static const _currentUserKey = 'current_user';
 
   // Simulated in-memory user db
   // final List<Map<String, String>> _users = [];
@@ -14,7 +15,7 @@ class MockAuthService {
     await Future.delayed(const Duration(seconds: 2));
   }
 
-  // Load users from local storage
+  // Load all registered users from local storage
   Future<List<Map<String, String>>> _loadUsers() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_usersKey);
@@ -23,10 +24,30 @@ class MockAuthService {
     return decoded.map((e) => Map<String, String>.from(e)).toList();
   }
 
-  // Save users to local storage
+  // Save all users to local storage
   Future<void> _saveUsers(List<Map<String, String>> users) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_usersKey, jsonEncode(users));
+  }
+
+  // Save current logged in user
+  Future<void> _saveCurrentUser(Map<String, String> user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_currentUserKey, jsonEncode(user));
+  }
+
+  // Get current logged in user
+  Future<Map<String, String>?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_currentUserKey);
+    if (jsonString == null) return null;
+    return Map<String, String>.from(jsonDecode(jsonString));
+  }
+
+  // Remove current logged in user
+  Future<void> signOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_currentUserKey);
   }
 
   // Register new user
@@ -45,10 +66,16 @@ class MockAuthService {
     }
 
     // Add if it doesn't
-    users.add({'name': fullName, 'email': email, 'password': password});
+    final newUser = {
+      'name': fullName,
+      'email': email,
+      'password': password,
+    };
 
-    // Save users after adding
+    users.add(newUser);
     await _saveUsers(users);
+    await _saveCurrentUser(newUser);
+
     return {'success': true, 'message': 'Account created successfully'};
   }
 
@@ -69,11 +96,8 @@ class MockAuthService {
       return {'success': false, 'message': 'Invalid email or password'};
     }
 
-    return {'success': true, 'message': 'Login successful', 'user': user};
-  }
+    await _saveCurrentUser(Map<String, String>.from(user));
 
-  // Log out
-  Future<void> signOut() async {
-    // clear out a current user after saved in login process
+    return {'success': true, 'message': 'Login successful', 'user': user};
   }
 }

@@ -1,4 +1,6 @@
+import 'package:excelerate/homepage.dart';
 import 'package:excelerate/onboardingScreen.dart';
+import 'package:excelerate/services/mockAuthService.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -8,6 +10,12 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<Widget> _determineStartPage() async {
+    final authService = MockAuthService();
+    final currentUser = await authService.getCurrentUser();
+    return currentUser != null ? const HomePage() : const OnboardingScreen();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,7 +24,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
       ),
-      home: const OnboardingScreen(),
+      home: FutureBuilder(
+        future: _determineStartPage(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return snapshot.data!;
+        },
+      ),
     );
   }
 }

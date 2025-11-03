@@ -3,6 +3,7 @@ import 'package:excelerate/explorePage.dart';
 import 'package:excelerate/models/courseModel.dart';
 import 'package:excelerate/myCoursesPage.dart';
 import 'package:excelerate/profilePage.dart';
+import 'package:excelerate/services/mockCourseService.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -49,7 +50,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      body: _selectedIndex == 0 ? _homeContent(context) : _pages[_selectedIndex - 1],
+      body: _selectedIndex == 0
+          ? _homeContent(context)
+          : _pages[_selectedIndex - 1],
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -190,7 +193,7 @@ Widget _homeContent(BuildContext? context) {
           const SizedBox(height: 16),
 
           // Course Cards
-          Column(
+          /* Column(
             children: [
               _courseCard(
                 context: context,
@@ -201,6 +204,7 @@ Widget _homeContent(BuildContext? context) {
                 rating: 4.8,
                 progress: 0.45,
                 icon: '💻',
+                id: id,
               ),
               const SizedBox(height: 16),
               _courseCard(
@@ -212,6 +216,7 @@ Widget _homeContent(BuildContext? context) {
                 rating: 4.9,
                 progress: 0.7,
                 icon: '🎨',
+                id: id,
               ),
               const SizedBox(height: 16),
               _courseCard(
@@ -223,13 +228,98 @@ Widget _homeContent(BuildContext? context) {
                 rating: 4.7,
                 progress: 0.2,
                 icon: '📱',
-              ),
+                id: id,
+              ), 
             ],
+          ), */
+
+          // replacing course cards
+          FutureBuilder<List<Course>>(
+            future: MockCourseService().getContinueLearning(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Text('Error loading courses');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('No courses found');
+              }
+
+              final courses = snapshot.data!;
+              return Column(
+                children: courses.map((course) {
+                  return _courseCard(
+                    context: context,
+                    id: course.id,
+                    color: _getCategoryColor(course.category),
+                    title: course.title,
+                    category: course.category,
+                    lessons: course.lessons,
+                    rating: course.rating,
+                    progress: course.progress,
+                    icon: course.icon,
+                  );
+                }).toList(),
+              );
+            },
+          ),
+
+          // Recently Opened
+          const SizedBox(height: 32),
+          const Text(
+            'Recently Opened',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+
+          FutureBuilder<List<Course>>(
+            future: MockCourseService().getRecentCourse(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Text('Error loading recent courses');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('No recent courses yet');
+              }
+
+              final recentCourses = snapshot.data!;
+              return Column(
+                children: recentCourses.map((course) {
+                  return _courseCard(
+                    context: context,
+                    id: course.id,
+                    color: _getCategoryColor(course.category),
+                    title: course.title,
+                    category: course.category,
+                    lessons: course.lessons,
+                    rating: course.rating,
+                    progress: course.progress,
+                    icon: course.icon,
+                  );
+                }).toList(),
+              );
+            },
           ),
         ],
       ),
     ),
   );
+}
+
+Color _getCategoryColor(String category) {
+  switch (category) {
+    case 'Web Development':
+      return Colors.blue;
+    case 'Design':
+      return Colors.green;
+    case 'Mobile Development':
+      return Colors.orange;
+    case 'Data Science':
+      return Colors.purple;
+    default:
+      return Colors.grey;
+  }
 }
 
 // Quick Action Widget
@@ -267,6 +357,7 @@ Widget _quickAction(String emoji, String label) {
 
 // Course Card Widget
 Widget _courseCard({
+  required int id,
   required Color color,
   required String title,
   required String category,
@@ -306,7 +397,10 @@ Widget _courseCard({
                   : (i < 3 ? 'Completed' : 'Locked'),
             },
           ),
+          id: id,
         );
+
+        MockCourseService().addRecentCourses(course);
 
         Navigator.push(
           context,

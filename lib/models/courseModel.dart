@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 class Course {
+  final int id;
   final String title;
   final String category;
   final String icon;
@@ -22,6 +23,7 @@ class Course {
   final BuildContext? context;
 
   const Course({
+    required this.id,
     required this.title,
     required this.category,
     required this.lessons,
@@ -38,40 +40,90 @@ class Course {
     required this.description,
     required this.totalTime,
     required this.lessonsList,
-    this.context
+    this.context,
   });
 
-  // optional fromMap() helper
-  factory Course.fromMap(Map<String, dynamic> map) {
+  // fromJson() helper
+  factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
-      title: map['title'],
-      category: map['category'],
-      lessons: map['lessons'],
-      rating: map['rating'],
-      progress: map['progress'],
-      icon: map['icon'],
-      status: map['status'],
-      instructor: map['instructor'],
-      role: map['role'],
-      students: map['students'],
-      duration: map['duration'],
-      reviews: map['reviews'],
-      lessonsList: [],
-      numStudents: map['numStudents'],
-      description: map['description'],
-      totalTime: map['totalTime'],
+      id: json['id'],
+      title: json['title'],
+      category: json['category'],
+      lessons: json['lessons'],
+      rating: (json['rating'] as num).toDouble(),
+      progress: (json['progress'] as num).toDouble(),
+      icon: json['icon'],
+      status: json['status'],
+      instructor: json['instructor'],
+      role: json['role'],
+      students: json['students'],
+      duration: json['duration'],
+      reviews: json['reviews'],
+      lessonsList: List<Map<String, dynamic>>.from(json['lessonsList']),
+      numStudents: json['numStudents'],
+      description: json['description'],
+      totalTime: json['totalTime'],
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'category': category,
-      'lessons': lessons,
-      'rating': rating,
-      'progress': progress,
-      'icon': icon,
-      'status': status,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'category': category,
+    'lessons': lessons,
+    'rating': rating,
+    'progress': progress,
+    'icon': icon,
+    'instructor': instructor,
+    'students': students,
+    'duration': duration,
+    'reviews': reviews,
+    'numStudents': numStudents,
+    'totalTime': totalTime,
+    'description': description,
+    'lessonsList': lessonsList,
+  };
+
+  Course copyWith({
+  int? id,
+  String? title,
+  String? category,
+  String? icon,
+  int? lessons,
+  double? rating,
+  double? progress,
+  String? status,
+  String? instructor,
+  String? role,
+  int? students,
+  double? duration,
+  int? reviews,
+  int? numStudents,
+  String? description,
+  double? totalTime,
+  List<Map<String, dynamic>>? lessonsList,
+  BuildContext? context,
+}) {
+  return Course(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    category: category ?? this.category,
+    lessons: lessons ?? this.lessons,
+    rating: rating ?? this.rating,
+    progress: progress ?? this.progress,
+    icon: icon ?? this.icon,
+    status: status ?? this.status,
+    instructor: instructor ?? this.instructor,
+    role: role ?? this.role,
+    students: students ?? this.students,
+    duration: duration ?? this.duration,
+    reviews: reviews ?? this.reviews,
+    numStudents: numStudents ?? this.numStudents,
+    description: description ?? this.description,
+    totalTime: totalTime ?? this.totalTime,
+    lessonsList: lessonsList ?? this.lessonsList,
+    context: context ?? this.context,
+  );
+}
+
 }

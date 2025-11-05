@@ -1,8 +1,9 @@
-import 'package:excelerate/signin.dart';
 import 'package:flutter/material.dart';
+// import 'package:excelerate/signin.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  final VoidCallback onFinish;
+  const OnboardingScreen({super.key, required this.onFinish});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -40,18 +41,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to actual sign in screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignInPage()),
-      );
+      widget.onFinish(); // Mark onboarding as done and handle navigation in main.dart
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Colors.white,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Expanded(
@@ -91,6 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: Colors.grey.shade700,
             ),
           ),
+          const SizedBox(height: 16),
           Text(
             page.description,
             textAlign: TextAlign.center,
@@ -141,7 +139,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onPressed: _nextPage,
         child: Text(
           page.buttonText,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,

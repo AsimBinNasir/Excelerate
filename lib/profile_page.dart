@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:excelerate/signin.dart'; // import your SignInPage
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,9 +19,17 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isSigningOut = true); // show loader
 
     try {
+      // Sign out from Firebase and Google
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn().signOut();
-      // AuthWrapper or StreamBuilder in main.dart will handle navigation
+
+      // Navigate to SignInPage and remove all previous pages
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const SignInPage()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -206,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
 
-        // Overlay loader if needed
+        // Overlay loader
         if (_isSigningOut)
           Container(
             color: Colors.black.withValues(alpha:0.3),

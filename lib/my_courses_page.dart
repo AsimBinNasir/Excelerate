@@ -18,8 +18,18 @@ class MyCoursesPage extends StatefulWidget {
 }
 
 class _MyCoursesPageState extends State<MyCoursesPage> {
-  String _selectedCategory = 'All';
+  late String _selectedCategory;
   final List<String> _categories = ['All', 'In Progress', 'Saved', 'Completed'];
+  bool _categoryInitialized = false; // ✅ prevent re-initialization
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_categoryInitialized) {
+      _selectedCategory = ModalRoute.of(context)?.settings.arguments as String? ?? 'All';
+      _categoryInitialized = true;
+    }
+  }
 
   bool _isStarted(Course c) => c.lessonsList.any((l) => l['status'] != 'Locked');
   bool _isCompleted(Course c) => c.lessonsList.isNotEmpty && c.lessonsList.every((l) => l['status'] == 'Completed');

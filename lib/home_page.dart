@@ -1,8 +1,10 @@
 // lib/home_page.dart
+import 'dart:math';
 import 'package:excelerate/models/course_model.dart';
 import 'package:excelerate/explore_page.dart';
 import 'package:excelerate/my_courses_page.dart';
 import 'package:excelerate/profile_page.dart';
+import 'package:excelerate/course_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -19,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   // Shared courses list
-  final List<Course> courseList = allCourses;
+  final List<Course> _allCourses = allCourses;
   late List<Widget> _pages;
 
   @override
@@ -29,8 +31,8 @@ class _HomePageState extends State<HomePage> {
       Container(), // placeholder for Home
       const ExplorePage(),
       MyCoursesPage(
-        allCourses: allCourses,
-        onProgressUpdated: () => setState(() {}),
+        allCourses: _allCourses,
+        onProgressUpdated: () => setState(() {}), // refresh Home when progress changes
       ),
       const ProfilePage(),
     ];
@@ -42,23 +44,50 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Calculate average progress across all courses
+  // ------------------ Home Page Helpers ------------------
+  List<Course> get _startedCourses =>
+      _allCourses.where((c) => c.lessonsList.any((l) => l['status'] != 'Locked')).toList();
+
+  List<Course> get _completedCourses =>
+      _startedCourses.where((c) => c.lessonsList.isNotEmpty && c.lessonsList.every((l) => l['status'] == 'Completed')).toList();
+
   double _calculateOverallProgress() {
-    if (courseList.isEmpty) return 0.0;
-    double totalProgress = courseList.map((c) => c.progress).reduce((a, b) => a + b);
-    return totalProgress / courseList.length;
+    if (_startedCourses.isEmpty) return 0.0;
+    double totalProgress = _startedCourses
+        .map((c) => c.lessonsList.isEmpty
+            ? 0.0
+            : c.lessonsList.where((l) => l['status'] == 'Completed').length / c.lessonsList.length)
+        .reduce((a, b) => a + b);
+    return totalProgress / _startedCourses.length;
   }
 
-  // Count completed courses
-  int _countCompletedCourses() {
-    return courseList.where((c) => c.progress >= 1.0).length;
+  // ------------------ Random Courses for Continue Learning ------------------
+  List<Course> _randomContinueLearningCourses(int count) {
+    List<Course> shuffled = List.from(_allCourses);
+    shuffled.shuffle(Random());
+    return shuffled.take(min(count, shuffled.length)).toList();
+  }
+
+  // ------------------ Navigation Helpers ------------------
+  void _openMyCourses({String category = 'All'}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MyCoursesPage(
+          allCourses: _allCourses,
+          onProgressUpdated: () => setState(() {}),
+        ),
+        settings: RouteSettings(arguments: category),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
     double overallProgress = _calculateOverallProgress();
-    int completedCourses = _countCompletedCourses();
+    int completedCourses = _completedCourses.length;
+    int startedCourses = _startedCourses.length;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,7 +107,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: _selectedIndex == 0
-          ? _homeContent(context, currentUser, overallProgress, completedCourses)
+          ? _homeContent(context, currentUser, overallProgress, completedCourses, startedCourses)
           : _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -97,8 +126,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ------------------ Home Page Content ------------------
-  Widget _homeContent(
-      BuildContext context, User? currentUser, double overallProgress, int completedCourses) {
+  Widget _homeContent(BuildContext context, User? currentUser, double overallProgress,
+      int completedCourses, int startedCourses) {
+    final startedCoursesList = _startedCourses;
+    final continueLearningCourses = _randomContinueLearningCourses(3);
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -125,7 +157,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 30),
-            // Progress card (dynamic)
+
+            // Progress card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -157,39 +190,107 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '$completedCourses of ${courseList.length} courses completed',
+                    startedCourses == 0
+                        ? '0 out of 0 courses completed'
+                        : '$completedCourses out of $startedCourses course${startedCourses > 1 ? 's' : ''} completed',
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   Align(
                     alignment: Alignment.topRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'level 3',
-                        style: TextStyle(color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () => _openMyCourses(category: 'All'), // ✅ Open MyCoursesPage
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'View Details',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
             // Quick Action Rows
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _quickAction(Icons.explore, 'Browse'),
-                _quickAction(Icons.favorite, 'Favorites'),
-                _quickAction(Icons.bar_chart, 'Progress'),
+                GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExplorePage())),
+                  child: _quickAction(Icons.explore, 'Explore'),
+                ),
+                GestureDetector(
+                  onTap: () => _openMyCourses(category: 'Saved'),
+                  child: _quickAction(Icons.favorite, 'Saved'),
+                ),
+                GestureDetector(
+                  onTap: () => _openMyCourses(category: 'In Progress'),
+                  child: _quickAction(Icons.bar_chart, 'In Progress'),
+                ),
                 _quickAction(Icons.emoji_events, 'Achievements'),
               ],
             ),
+
             const SizedBox(height: 24),
-            // Continue Learning Section
+            // ---------------- Your Courses Section ----------------
+            const Text(
+              'Your Courses',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            if (startedCoursesList.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    'No courses started yet',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: startedCoursesList
+                    .map(
+                      (course) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CourseDetailsPage(course: course, allCourses: _allCourses),
+                              ),
+                            ).then((_) => setState(() {}));
+                          },
+                          child: _courseCard(
+                            color: Colors.pinkAccent.withAlpha(40),
+                            title: course.title,
+                            category: course.category,
+                            lessons: course.lessons,
+                            rating: course.rating,
+                            progress: course.lessonsList.isEmpty
+                                ? 0.0
+                                : course.lessonsList
+                                        .where((l) => l['status'] == 'Completed')
+                                        .length /
+                                    course.lessonsList.length,
+                            icon: course.icon,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+
+            const SizedBox(height: 24),
+            // ---------------- Continue Learning Section ----------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -215,21 +316,34 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 16),
-            // Dynamic Course Cards
             Column(
-              children: courseList
-                  .where((c) => c.progress > 0.0 && c.progress < 1.0)
+              children: continueLearningCourses
                   .map(
                     (course) => Padding(
                       padding: const EdgeInsets.only(bottom: 16),
-                      child: _courseCard(
-                        color: Colors.pinkAccent.withValues(alpha: .15),
-                        title: course.title,
-                        category: course.category,
-                        lessons: course.lessons,
-                        rating: course.rating,
-                        progress: course.progress,
-                        icon: course.icon,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CourseDetailsPage(course: course, allCourses: _allCourses),
+                            ),
+                          ).then((_) => setState(() {}));
+                        },
+                        child: _courseCard(
+                          color: Colors.pinkAccent.withAlpha(40),
+                          title: course.title,
+                          category: course.category,
+                          lessons: course.lessons,
+                          rating: course.rating,
+                          progress: course.lessonsList.isEmpty
+                              ? 0.0
+                              : course.lessonsList
+                                      .where((l) => l['status'] == 'Completed')
+                                      .length /
+                                  course.lessonsList.length,
+                          icon: course.icon,
+                        ),
                       ),
                     ),
                   )
@@ -280,7 +394,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: .15),
+            color: Colors.grey.withAlpha(40),
             blurRadius: 8,
             spreadRadius: 2,
             offset: const Offset(0, 4),
@@ -326,17 +440,13 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     category,
                     style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500),
+                        color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(title,
                     style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: Colors.grey.shade900)),
+                        fontWeight: FontWeight.w700, fontSize: 16, color: Colors.grey.shade900)),
                 const SizedBox(height: 8),
                 Row(
                   children: [

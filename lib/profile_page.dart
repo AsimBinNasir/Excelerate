@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:excelerate/signin.dart'; // import your SignInPage
+import 'package:excelerate/signin.dart';
+// import 'package:excelerate/models/course_model.dart'; // ✅ to access Course
+import 'package:excelerate/mock_courses.dart'; // ✅ contains allCourses (used in MyCoursesPage)
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,15 +17,51 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isSigningOut = false;
   User? currentUser = FirebaseAuth.instance.currentUser;
 
+  int totalCourses = 0;
+  int totalHours = 0;
+  int totalCertificates = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateCourseStats();
+  }
+
+  /// ✅ Calculate stats dynamically from allCourses list
+ void _calculateCourseStats() {
+  int courseCount = 0;
+  double hourCount = 0; // changed to double to handle fractional hours
+  int certCount = 0;
+
+  for (var c in allCourses) {
+    bool isStarted = c.lessonsList.any((l) => l['status'] != 'Locked');
+    bool isCompleted = c.lessonsList.isNotEmpty &&
+        c.lessonsList.every((l) => l['status'] == 'Completed');
+
+    if (isStarted || isCompleted) courseCount++;
+    if (isCompleted) {
+      certCount++;
+     hourCount += c.totalTime.toDouble();
+
+    }
+  }
+
+  setState(() {
+    totalCourses = courseCount;
+    totalHours = hourCount.toInt(); // convert to int for display
+    totalCertificates = certCount;
+  });
+}
+
+
+  /// ✅ Sign Out Logic
   Future<void> _signOut() async {
-    setState(() => _isSigningOut = true); // show loader
+    setState(() => _isSigningOut = true);
 
     try {
-      // Sign out from Firebase and Google
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn().signOut();
 
-      // Navigate to SignInPage and remove all previous pages
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const SignInPage()),
@@ -37,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isSigningOut = false); // hide loader
+      if (mounted) setState(() => _isSigningOut = false);
     }
   }
 
@@ -50,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                // Header with user info
+                // Header
                 Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -91,14 +129,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
 
                 const SizedBox(height: 20),
+
+                // ✅ Dynamic Course Stats
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: const [
-                    _StatItem(value: "12", label: "Courses"),
-                    _StatItem(value: "45", label: "Hours"),
-                    _StatItem(value: "8", label: "Certificates"),
+                  children: [
+                    _StatItem(value: "$totalCourses", label: "Courses"),
+                    _StatItem(value: "$totalHours", label: "Hours"),
+                    _StatItem(value: "$totalCertificates", label: "Certificates"),
                   ],
                 ),
+
                 const SizedBox(height: 20),
 
                 // Account Section
@@ -106,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const _ListTileItem(
                   icon: Icons.edit,
                   title: "Edit Profile",
-                  subtitle: "Update your personal information",
+                  subtitle: "Update your namme",
                 ),
                 const _ListTileItem(
                   icon: Icons.lock_outline,
@@ -126,8 +167,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: Icons.dark_mode_outlined,
                   title: "Dark Mode",
                   trailing: Switch(
-                    value: false,
-                    onChanged: (v) {},
+                    value: isDarkMode,
+                    onChanged: (v) {
+                      setState(() => isDarkMode = v);
+                    },
                   ),
                 ),
                 const _ListTileItem(
@@ -195,9 +238,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               SizedBox(width: 12),
-                              Text('Signing Out...',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16)),
+                              Text(
+                                'Signing Out...',
+                                style:
+                                    TextStyle(color: Colors.white, fontSize: 16),
+                              ),
                             ],
                           )
                         : const Text(
@@ -215,10 +260,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
 
-        // Overlay loader
         if (_isSigningOut)
           Container(
-            color: Colors.black.withValues(alpha:0.3),
+            color: Colors.black.withAlpha(80),
             child: const Center(
               child: CircularProgressIndicator(color: Colors.white),
             ),
@@ -228,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// Helper Classes
+// Helper Classes (no UI change)
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
@@ -247,8 +291,7 @@ class _StatItem extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(label,
-            style: const TextStyle(color: Colors.black, fontSize: 12)),
+        Text(label, style: const TextStyle(color: Colors.black, fontSize: 12)),
       ],
     );
   }
@@ -297,7 +340,8 @@ class _ListTileItem extends StatelessWidget {
       elevation: 0,
       child: ListTile(
         leading: Icon(icon, color: Colors.grey[700]),
-        trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing:
+            trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: subtitle != null ? Text(subtitle!) : null,
       ),
